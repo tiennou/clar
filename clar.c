@@ -132,6 +132,7 @@ static struct {
 	int report_errors_only;
 	int exit_on_error;
 	int report_suite_names;
+	int write_summary;
 
 	struct clar_report *reports;
 	struct clar_report *last_report;
@@ -344,6 +345,7 @@ clar_usage(const char *arg)
 	printf("  -q    \tOnly report tests that had an error\n");
 	printf("  -Q    \tQuit as soon as a test fails\n");
 	printf("  -l    \tPrint suite names\n");
+	printf("  -r    \tWrite summary file\n");
 	exit(-1);
 }
 
@@ -429,6 +431,10 @@ clar_parse_args(int argc, char **argv)
 			_clar.report_suite_names = 1;
 			break;
 
+		case 'r':
+			_clar.write_summary = 1;
+			break;
+
 		default:
 			clar_usage(argv[0]);
 		}
@@ -468,6 +474,8 @@ clar_test_run()
 	return _clar.total_errors;
 }
 
+static void clar_summary_write(void);
+
 void
 clar_test_shutdown()
 {
@@ -478,6 +486,8 @@ clar_test_shutdown()
 	);
 
 	clar_unsandbox();
+
+	clar_summary_write();
 }
 
 int
@@ -682,3 +692,4 @@ void cl_set_cleanup(void (*cleanup)(void *), void *opaque)
 #include "clar/fixtures.h"
 #include "clar/fs.h"
 #include "clar/print.h"
+#include "clar/summary.h"
